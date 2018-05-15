@@ -51,26 +51,56 @@ func (c *Client) assetPath(platform, assetID string) string {
 	return fmt.Sprintf("/api/%s/asset/%s", platform, assetID)
 }
 
+// Asset is a Vimond Rest API asset
+type Asset struct {
+	ID         string `xml:"id,attr" json:"id"`
+	ChannelID  string `xml:"channelId,attr" json:"channel_id"`
+	CategoryID string `xml:"categoryId,attr" json:"category_id"`
+
+	AssetTypeID string `xml:"assetTypeId" json:"asset_type_id"`
+	Description string `xml:"description" json:"description"`
+	ImageURL    string `xml:"imageUrl" json:"image_url"`
+	Title       string `xml:"title" json:"title"`
+
+	ImageVersions []ImageVersion `xml:"imageVersions>image"`
+
+	Archive        bool `xml:"archive" json:"archive"`
+	Aspect16x9     bool `xml:"aspect16x9" json:"aspect_16x9"`
+	AutoDistribute bool `xml:"autoDistribute" json:"auto_distribute"`
+	AutoEncode     bool `xml:"autoEncode" json:"auto_encode"`
+	AutoPublish    bool `xml:"autoPublish" json:"auto_publish"`
+	CopyLiveStream bool `xml:"copyLiveStream" json:"copy_live_stream"`
+	DRMProtected   bool `xml:"drmProtected" json:"drm_protected"`
+	Deleted        bool `xml:"deleted" json:"deleted"`
+	ItemsPublished bool `xml:"itemsPublished" json:"items_published"`
+	LabeledAsFree  bool `xml:"labeledAsFree" json:"labeled_as_free"`
+	Live           bool `xml:"live" json:"live"`
+
+	Duration int `xml:"duration" json:"duration"`
+	Views    int `xml:"views" json:"views"`
+
+	AccurateDuration float64 `xml:"accurateDuration" json:"accurate_duration"`
+
+	CreateTime        time.Time `xml:"createTime" json:"create_time"`
+	ExpireDate        time.Time `xml:"expireDate" json:"expire_date"`
+	LiveBroadcastTime time.Time `xml:"liveBroadcastTime" json:"live_broadcast_time"`
+	UpdateTime        time.Time `xml:"updateTime" json:"update_time"`
+
+	Metadata AssetMetadata `xml:"metadata" json:"metadata"`
+	Category Category      `xml:"category" json:"category"`
+}
+
+// ImageVerion is a version of image representing the asset
+type ImageVersion struct {
+	Type string `xml:"type,attr" json:"type"`
+	URL  string `xml:"url" json:"url"`
+}
+
 // Category is a category node in the Vimond Rest API category tree
 type Category struct {
 	Parent *Category `xml:"parent" json:"parent"`
 	Title  string    `xml:"title" json:"title"`
 	ID     string    `xml:"id,attr" json:"id"`
-}
-
-// Asset is a Vimond Rest API asset
-type Asset struct {
-	ID                string        `xml:"id,attr" json:"id"`
-	CategoryID        string        `xml:"categoryId,attr" json:"category_id"`
-	Category          Category      `xml:"category" json:"category"`
-	Title             string        `xml:"title" json:"title"`
-	Live              bool          `xml:"live" json:"live"`
-	LiveBroadcastTime time.Time     `xml:"liveBroadcastTime" json:"live_broadcast_time"`
-	ExpireDate        time.Time     `xml:"expireDate" json:"expire_date"`
-	AccurateDuration  float64       `xml:"accurateDuration" json:"accurate_duration"`
-	Duration          int           `xml:"duration" json:"duration"`
-	Description       string        `xml:"description" json:"description"`
-	Metadata          AssetMetadata `xml:"metadata" json:"metadata"`
 }
 
 // In walks the category tree upwards, looking for the given ID
