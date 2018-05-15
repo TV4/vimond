@@ -90,7 +90,7 @@ func Credentials(apiKey, secret string) func(*Client) {
 
 func (c *Client) get(ctx context.Context, path string, query url.Values) (*http.Response, error) {
 	req, err := c.getRequest(ctx, path, query, func(req *http.Request) {
-		if c.apiKey != "" {
+		if c.apiKey != "" && c.secret != "" {
 			req.Header = authorizationHeader(req.Method, req.URL.Path, time.Now(), c.apiKey, c.secret)
 		}
 	})
