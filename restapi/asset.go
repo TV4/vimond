@@ -62,7 +62,7 @@ type Asset struct {
 	ImageURL    string `xml:"imageUrl" json:"image_url"`
 	Title       string `xml:"title" json:"title"`
 
-	ImageVersions []ImageVersion `xml:"imageVersions>image"`
+	ImageVersions ImageVersions `xml:"imageVersions>image"`
 
 	Archive        bool `xml:"archive" json:"archive"`
 	Aspect16x9     bool `xml:"aspect16x9" json:"aspect_16x9"`
@@ -90,7 +90,21 @@ type Asset struct {
 	Category Category      `xml:"category" json:"category"`
 }
 
-// ImageVerion is a version of image representing the asset
+// ImageVersions is a slice of ImageVersion
+type ImageVersions []ImageVersion
+
+// TypeURL returns the URL for the given image version type
+func (ivs ImageVersions) TypeURL(ivt string) string {
+	for _, iv := range ivs {
+		if iv.Type == ivt {
+			return iv.URL
+		}
+	}
+
+	return ""
+}
+
+// ImageVersion is a version of image representing the asset
 type ImageVersion struct {
 	Type string `xml:"type,attr" json:"type"`
 	URL  string `xml:"url" json:"url"`

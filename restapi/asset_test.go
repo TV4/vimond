@@ -63,6 +63,25 @@ func TestAsset(t *testing.T) {
 	})
 }
 
+func TestImageVersions(t *testing.T) {
+	t.Run("TypeURL", func(t *testing.T) {
+		for _, tt := range []struct {
+			ivs  ImageVersions
+			ivt  string
+			want string
+		}{
+			{ImageVersions{}, "", ""},
+			{ImageVersions{}, "original", ""},
+			{ImageVersions{{"original", "foo"}}, "original", "foo"},
+			{ImageVersions{{"original", "foo"}, {"secondary", "bar"}}, "secondary", "bar"},
+		} {
+			if got := tt.ivs.TypeURL(tt.ivt); got != tt.want {
+				t.Fatalf("tt.ivs.TypeURL(%q) = %q, want %q", tt.ivt, got, tt.want)
+			}
+		}
+	})
+}
+
 func TestCategoryIn(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
