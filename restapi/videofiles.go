@@ -58,4 +58,5 @@ type Videofile struct {
 	Server      string `json:"server"`
 	Base        string `json:"base"`
 	URL         string `json:"url"`
+	FileSize    int64  `json:"filesize"`
 }
