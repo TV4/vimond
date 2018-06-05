@@ -172,8 +172,3 @@ type LocalizedValue struct {
 	Lang  string `xml:"lang,attr" json:"lang"`
 	Value string `xml:",chardata" json:"value"`
 }
-
-type publishing struct {
-	Platform string    `xml:"publishing>platform"`
-	Publish  time.Time `xml:"publishing>publish"`
-}

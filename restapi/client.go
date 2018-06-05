@@ -17,7 +17,6 @@ import (
 var (
 	ErrInvalidAssetID = errors.New("vimond/restapi: invalid asset id")
 	ErrNotFound       = errors.New("vimond/restapi: not found")
-	ErrNoPublish      = errors.New("vimond/restapi: no publish on platform")
 	ErrUnknown        = errors.New("vimond/restapi: unknown")
 )
 

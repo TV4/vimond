@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"net/http"
-	"strings"
 	"testing"
-	"time"
 )
 
 func TestAsset(t *testing.T) {
@@ -24,15 +22,6 @@ func TestAsset(t *testing.T) {
 			{ID: "3800612", CategoryID: "3051302", Title: "I en annan del av Köping: ", PressTitle: "I en annan del av Köping"},
 		} {
 			ts, c := testServerAndClient(func(w http.ResponseWriter, r *http.Request) {
-				if strings.HasSuffix(r.URL.Path, "/publish") {
-					xml.NewEncoder(w).Encode(publishing{
-						Platform: "tv4",
-						Publish:  time.Now(),
-					})
-
-					return
-				}
-
 				w.Write(testAssetXML(ta))
 			})
 			defer ts.Close()
