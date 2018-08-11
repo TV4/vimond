@@ -1,8 +1,11 @@
 package restapi
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -85,21 +88,26 @@ func TestNewClient(t *testing.T) {
 	})
 }
 
-func TestGetRequest(t *testing.T) {
+func TestNewRequest(t *testing.T) {
 	c := testClient()
 
 	for _, tt := range []struct {
+		method string
 		path   string
 		query  url.Values
-		rawurl string
-		err    error
+		body   io.Reader
+
+		rawurl    string
+		bodyBytes []byte
+		err       error
 	}{
-		{"/Foo", url.Values{"bar": {"hey"}}, "http://example.com/Foo?bar=hey", nil},
-		{"/Bar", url.Values{"baz": {"123"}}, "http://example.com/Bar?baz=123", nil},
-		{"::/foo", url.Values{"qux": {"456"}}, "", errors.New("parse ::/foo?qux=456: missing protocol scheme")},
+		{http.MethodGet, "/Foo", url.Values{"bar": {"hey"}}, nil, "http://example.com/Foo?bar=hey", nil, nil},
+		{http.MethodGet, "/Bar", url.Values{"baz": {"123"}}, nil, "http://example.com/Bar?baz=123", nil, nil},
+		{http.MethodGet, "::/foo", url.Values{"qux": {"456"}}, nil, "", nil, errors.New("parse ::/foo?qux=456: missing protocol scheme")},
+		{http.MethodPost, "/Foo", url.Values{"bar": {"hey"}}, bytes.NewReader([]byte("foo-body")), "http://example.com/Foo?bar=hey", []byte("foo-body"), nil},
 	} {
 		t.Run(tt.path, func(t *testing.T) {
-			req, err := c.getRequest(context.Background(), tt.path, tt.query)
+			req, err := c.newRequest(context.Background(), tt.method, tt.path, tt.query, tt.body)
 			if err != nil {
 				if tt.err == nil {
 					t.Fatalf("unexpected error: %v", err)
@@ -112,7 +120,7 @@ func TestGetRequest(t *testing.T) {
 				return
 			}
 
-			if got, want := req.Method, http.MethodGet; got != want {
+			if got, want := req.Method, tt.method; got != want {
 				t.Fatalf("req.Method = %q, want %q", got, want)
 			}
 
@@ -126,6 +134,27 @@ func TestGetRequest(t *testing.T) {
 
 			if got, want := req.URL.String(), tt.rawurl; got != want {
 				t.Fatalf("req.URL.String() = %q, want %q", got, want)
+			}
+
+			switch {
+			case req.Body == nil && tt.bodyBytes == nil:
+				// All good
+			case req.Body == nil && tt.bodyBytes != nil:
+				t.Fatalf("req.Body is nil, want %q", tt.bodyBytes)
+			case req.Body != nil && tt.bodyBytes == nil:
+				gotBody, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				t.Fatalf("req.Body = %q, want nil", gotBody)
+			case req.Body != nil && tt.bodyBytes != nil:
+				gotBody, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				if got, want := gotBody, tt.bodyBytes; !bytes.Equal(got, want) {
+					t.Fatalf("req.Body = %q, want %q", got, want)
+				}
 			}
 		})
 	}

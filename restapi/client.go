@@ -8,6 +8,7 @@ package restapi
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -88,10 +89,18 @@ func Credentials(apiKey, secret string) func(*Client) {
 }
 
 func (c *Client) get(ctx context.Context, path string, query url.Values) (*http.Response, error) {
-	req, err := c.getRequest(ctx, path, query, func(req *http.Request) {
-		if c.apiKey != "" && c.secret != "" {
-			req.Header = authorizationHeader(req.Method, req.URL.Path, time.Now(), c.apiKey, c.secret)
-		}
+	req, err := c.newRequest(ctx, http.MethodGet, path, query, nil, c.setAuthorizationHeader())
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) getJSON(ctx context.Context, path string, query url.Values) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodGet, path, query, nil, c.setAuthorizationHeader(), func(req *http.Request) {
+		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
 	})
 	if err != nil {
 		return nil, err
@@ -100,7 +109,49 @@ func (c *Client) get(ctx context.Context, path string, query url.Values) (*http.
 	return c.httpClient.Do(req)
 }
 
-func (c *Client) getRequest(ctx context.Context, path string, query url.Values, options ...func(*http.Request)) (*http.Request, error) {
+func (c *Client) post(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodPost, path, query, body, c.setAuthorizationHeader())
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) postJSON(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodPost, path, query, body, c.setAuthorizationHeader(), func(req *http.Request) {
+		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) put(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodPut, path, query, body, c.setAuthorizationHeader())
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) putJSON(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodPut, path, query, body, c.setAuthorizationHeader(), func(req *http.Request) {
+		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) newRequest(ctx context.Context, method, path string, query url.Values, body io.Reader, options ...func(*http.Request)) (*http.Request, error) {
 	rawurl := path
 
 	if len(query) > 0 {
@@ -112,7 +163,7 @@ func (c *Client) getRequest(ctx context.Context, path string, query url.Values, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, c.baseURL.ResolveReference(rel).String(), nil)
+	req, err := http.NewRequest(method, c.baseURL.ResolveReference(rel).String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -126,4 +177,12 @@ func (c *Client) getRequest(ctx context.Context, path string, query url.Values, 
 	req.Header.Add("User-Agent", c.userAgent)
 
 	return req, nil
+}
+
+func (c *Client) setAuthorizationHeader() func(*http.Request) {
+	return func(req *http.Request) {
+		if c.apiKey != "" && c.secret != "" {
+			req.Header = authorizationHeader(req.Method, req.URL.Path, time.Now(), c.apiKey, c.secret)
+		}
+	}
 }
