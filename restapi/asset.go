@@ -133,6 +133,7 @@ func (c *Category) In(id string) bool {
 // AssetMetadata is metadata for an Asset in the Vimond Rest API
 type AssetMetadata struct {
 	Annotags               string         `xml:"annotags" json:"annotags,omitempty"`
+	AssetLength            int            `xml:"asset-length" json:"asset_length,omitempty"`
 	ContentSource          string         `xml:"content-source" json:"content_source,omitempty"`
 	Genre                  string         `xml:"genre" json:"genre,omitempty"`
 	LouisePressTitle       string         `xml:"louise-press-title" json:"louise_press_title,omitempty"`
