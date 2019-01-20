@@ -49,6 +49,31 @@ func (c *Client) Order(ctx context.Context, platform, orderID string) (*Order, e
 	return parseOrder(resp.Body)
 }
 
+// CurrentOrders returns information about a user's currently active orders.
+func (c *Client) CurrentOrders(ctx context.Context, platform, userID string) ([]*Order, error) {
+	path := fmt.Sprintf("/api/%s/user/%s/orders/current", platform, userID)
+
+	resp, err := c.getJSON(ctx, path, url.Values{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		io.CopyN(ioutil.Discard, resp.Body, 64)
+		resp.Body.Close()
+	}()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		break
+	case http.StatusNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, ErrUnknown
+	}
+
+	return parseOrders(resp.Body)
+}
+
 // CreateOrder creates an order.
 func (c *Client) CreateOrder(ctx context.Context, platform, userID, productPaymentID string) (*Order, error) {
 	path := fmt.Sprintf("/api/%s/order/%s/create", platform, userID)
@@ -201,4 +226,36 @@ func parseOrder(r io.Reader) (*Order, error) {
 		StartDate:        epochMsToTime(o.StartDate),
 		UserID:           strconv.Itoa(o.UserID),
 	}, nil
+}
+
+func parseOrders(r io.Reader) ([]*Order, error) {
+	var resp []struct {
+		AccessEndDate    int64  `json:"accessEndDate"`
+		EndDate          int64  `json:"endDate"`
+		ID               int    `json:"id"`
+		ProductName      string `json:"productName"`
+		ProductPaymentID int    `json:"productPaymentID"`
+		StartDate        int64  `json:"startDate"`
+		UserID           int    `json:"userId"`
+	}
+
+	if err := json.NewDecoder(r).Decode(&resp); err != nil {
+		return nil, err
+	}
+
+	orders := make([]*Order, 0, len(resp))
+
+	for n := range resp {
+		orders = append(orders, &Order{
+			AccessEndDate:    epochMsToTime(resp[n].AccessEndDate),
+			EndDate:          epochMsToTime(resp[n].EndDate),
+			ID:               strconv.Itoa(resp[n].ID),
+			ProductName:      resp[n].ProductName,
+			ProductPaymentID: strconv.Itoa(resp[n].ProductPaymentID),
+			StartDate:        epochMsToTime(resp[n].StartDate),
+			UserID:           strconv.Itoa(resp[n].UserID),
+		})
+	}
+
+	return orders, nil
 }
