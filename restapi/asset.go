@@ -134,20 +134,27 @@ func (c *Category) In(id string) bool {
 type AssetMetadata struct {
 	Annotags               string         `xml:"annotags" json:"annotags,omitempty"`
 	AssetLength            int            `xml:"asset-length" json:"asset_length,omitempty"`
+	ContentApiID           string         `xml:"content-api-id" json:"content_api_id,omitempty"`
+	ContentApiSeasonID     string         `xml:"content-api-season-id" json:"content_api_season_id,omitempty"`
+	ContentApiSeriesID     string         `xml:"content-api-series-id" json:"content_api_series_id,omitempty"`
 	ContentSource          string         `xml:"content-source" json:"content_source,omitempty"`
+	DescriptionShort       LocalizedValue `xml:"description-short" json:"description_short,omitempty"`
+	Episode                json.Number    `xml:"episode" json:"episode,omitempty"`
 	Genre                  string         `xml:"genre" json:"genre,omitempty"`
+	GenreDescription       LocalizedField `xml:"genre-description" json:"genre_description,omitempty"`
+	HideAds                bool           `xml:"hideAds" json:"hide_ads,omitempty"`
+	JuneMediaID            string         `xml:"june-media-id" json:"june_media_id,omitempty"`
+	JuneProgramID          string         `xml:"june-program-id" json:"june_program_id,omitempty"`
 	LouisePressTitle       string         `xml:"louise-press-title" json:"louise_press_title,omitempty"`
 	LouiseProductKey       string         `xml:"louise-product-key" json:"louise_product_key,omitempty"`
 	LouiseProgramType      string         `xml:"louise-program-type" json:"louise_program_type,omitempty"`
-	YouTubeTemplate        string         `xml:"youtube-template" json:"youtube_template,omitempty"`
-	HideAds                bool           `xml:"hideAds" json:"hide_ads,omitempty"`
-	Episode                json.Number    `xml:"episode" json:"episode,omitempty"`
 	Season                 json.Number    `xml:"season" json:"season,omitempty"`
-	Title                  LocalizedValue `xml:"title" json:"title,omitempty"`
-	DescriptionShort       LocalizedValue `xml:"description-short" json:"description_short,omitempty"`
+	SeasonID               string         `xml:"season-id" json:"season_id,omitempty"`
 	SeasonSynopsis         LocalizedField `xml:"season-synopsis" json:"season_synopsis,omitempty"`
 	SeriesDescriptionShort LocalizedField `xml:"series-description-short" json:"series_description_short,omitempty"`
-	GenreDescription       LocalizedField `xml:"genre-description" json:"genre_description,omitempty"`
+	SeriesID               string         `xml:"series-id" json:"series_id,omitempty"`
+	Title                  LocalizedValue `xml:"title" json:"title,omitempty"`
+	YouTubeTemplate        string         `xml:"youtube-template" json:"youtube_template,omitempty"`
 }
 
 // LocalizedField is field with localized values
