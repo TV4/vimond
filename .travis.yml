@@ -3,5 +3,9 @@ language: go
 go:
   - "1.13.7"
 
+install:
+  - go get -u golang.org/x/lint/golint
+
 script:
   - go test ./...
+  - go list ./... | xargs -n1 golint -set_exit_status
