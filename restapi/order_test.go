@@ -161,7 +161,7 @@ func TestParseOrders(t *testing.T) {
 	})
 
 	t.Run("MalformedJSON", func(t *testing.T) {
-		_, err := parseOrder(strings.NewReader("not-json"))
+		_, err := parseOrders(strings.NewReader("not-json"))
 
 		if err == nil {
 			t.Fatal("err is nil")
