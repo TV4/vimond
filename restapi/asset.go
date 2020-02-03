@@ -134,9 +134,9 @@ func (c *Category) In(id string) bool {
 type AssetMetadata struct {
 	Annotags               string         `xml:"annotags" json:"annotags,omitempty"`
 	AssetLength            int            `xml:"asset-length" json:"asset_length,omitempty"`
-	ContentApiID           string         `xml:"content-api-id" json:"content_api_id,omitempty"`
-	ContentApiSeasonID     string         `xml:"content-api-season-id" json:"content_api_season_id,omitempty"`
-	ContentApiSeriesID     string         `xml:"content-api-series-id" json:"content_api_series_id,omitempty"`
+	ContentAPIID           string         `xml:"content-api-id" json:"content_api_id,omitempty"`
+	ContentAPISeasonID     string         `xml:"content-api-season-id" json:"content_api_season_id,omitempty"`
+	ContentAPISeriesID     string         `xml:"content-api-series-id" json:"content_api_series_id,omitempty"`
 	ContentSource          string         `xml:"content-source" json:"content_source,omitempty"`
 	DescriptionShort       LocalizedValue `xml:"description-short" json:"description_short,omitempty"`
 	Episode                json.Number    `xml:"episode" json:"episode,omitempty"`
