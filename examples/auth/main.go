@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/TV4/vimond/restapi"
@@ -22,10 +24,11 @@ func main() {
 		restapi.Credentials(args[2], args[3]),
 	)
 
-	asset, err := c.Asset(context.Background(), args[4], args[5])
+	resp, err := c.GetJSON(context.Background(), args[4], args[5], url.Values{"expand": []string{"metadata", "category"}})
 	if err != nil {
 		log.Fatalf("error fetching asset: %v", err)
 	}
 
-	json.NewEncoder(os.Stdout).Encode(*asset)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
 }

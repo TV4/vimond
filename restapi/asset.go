@@ -20,7 +20,7 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 	}
 
 	resp, err := c.get(ctx, c.assetPath(platform, assetID), url.Values{
-		"expand": {"metadata,category"},
+		"expand": {"metadata,category,publishedPlatforms"},
 	})
 	if err != nil {
 		return nil, err
@@ -40,6 +40,10 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 	}
 
 	var a Asset
+	s, e := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(s))
+	fmt.Println(e)
+	return &a, nil
 	if err := xml.NewDecoder(resp.Body).Decode(&a); err != nil {
 		return nil, err
 	}
@@ -86,8 +90,9 @@ type Asset struct {
 	LiveBroadcastTime time.Time `xml:"liveBroadcastTime" json:"live_broadcast_time"`
 	UpdateTime        time.Time `xml:"updateTime" json:"update_time"`
 
-	Metadata AssetMetadata `xml:"metadata" json:"metadata"`
-	Category Category      `xml:"category" json:"category"`
+	Metadata  AssetMetadata `xml:"metadata" json:"metadata"`
+	Category  Category      `xml:"category" json:"category"`
+	Published bool          `xml:"published" json:"published"`
 }
 
 // ImageVersions is a slice of ImageVersion

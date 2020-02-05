@@ -97,10 +97,22 @@ func (c *Client) get(ctx context.Context, path string, query url.Values) (*http.
 	return c.httpClient.Do(req)
 }
 
+func (c *Client) GetJSON(ctx context.Context, platform, assetID string, query url.Values) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodGet, c.assetPath(platform, assetID), query, nil, c.setAuthorizationHeader(), func(req *http.Request) {
+		req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json;  v=3; charset=utf-8")
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(req)
+}
+
 func (c *Client) getJSON(ctx context.Context, path string, query url.Values) (*http.Response, error) {
 	req, err := c.newRequest(ctx, http.MethodGet, path, query, nil, c.setAuthorizationHeader(), func(req *http.Request) {
-		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
-		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=3; charset=utf-8")
 	})
 	if err != nil {
 		return nil, err
