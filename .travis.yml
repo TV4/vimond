@@ -7,5 +7,9 @@ install:
   - go get -u golang.org/x/lint/golint
 
 script:
-  - go test ./...
   - go list ./... | xargs -n1 golint -set_exit_status
+  - go test ./...
+
+branches:
+  only:
+    - master
