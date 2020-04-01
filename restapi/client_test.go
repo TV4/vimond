@@ -103,7 +103,7 @@ func TestNewRequest(t *testing.T) {
 	}{
 		{http.MethodGet, "/Foo", url.Values{"bar": {"hey"}}, nil, "http://example.com/Foo?bar=hey", nil, nil},
 		{http.MethodGet, "/Bar", url.Values{"baz": {"123"}}, nil, "http://example.com/Bar?baz=123", nil, nil},
-		{http.MethodGet, "::/foo", url.Values{"qux": {"456"}}, nil, "", nil, errors.New("parse ::/foo?qux=456: missing protocol scheme")},
+		{http.MethodGet, "::/foo", url.Values{"qux": {"456"}}, nil, "", nil, errors.New("parse \"::/foo?qux=456\": missing protocol scheme")},
 		{http.MethodPost, "/Foo", url.Values{"bar": {"hey"}}, bytes.NewReader([]byte("foo-body")), "http://example.com/Foo?bar=hey", []byte("foo-body"), nil},
 	} {
 		t.Run(tt.path, func(t *testing.T) {
