@@ -10,12 +10,12 @@ func TestParseOrder(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		const orderJSON = `
 		{
-			"accessEndDate":    946782245234,
-			"endDate":          946782245345,
+			"accessEndDate":    "2000-01-02T03:04:05.234Z",
+			"endDate":          "2000-01-02T03:04:05.345Z",
 			"id":               123456,
 			"productName":      "foo-product-name",
 			"productPaymentID": 234567,
-			"startDate":        946782245123,
+			"startDate":        "2000-01-02T03:04:05.123Z",
 			"userId":           345678
 		}
 	`
@@ -77,21 +77,21 @@ func TestParseOrders(t *testing.T) {
 		const orderJSON = `
 		[
 			{
-				"accessEndDate":    946782245234,
-				"endDate":          946782245345,
+				"accessEndDate":    "2000-01-02T03:04:05.234Z",
+				"endDate":          "2000-01-02T03:04:05.345Z",
 				"id":               123456,
 				"productName":      "foo-product-name",
 				"productPaymentID": 234567,
-				"startDate":        946782245123,
+				"startDate":        "2000-01-02T03:04:05.123Z",
 				"userId":           345678
 			},
 			{
-				"accessEndDate":    946782245456,
-				"endDate":          946782245567,
+				"accessEndDate":    "2000-01-02T03:04:05.456Z",
+				"endDate":          "2000-01-02T03:04:05.567Z",
 				"id":               234567,
 				"productName":      "bar-product-name",
 				"productPaymentID": 345678,
-				"startDate":        946782245234,
+				"startDate":        "2000-01-02T03:04:05.234Z",
 				"userId":           456789
 			}
 		]

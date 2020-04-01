@@ -204,13 +204,13 @@ func (c *Client) updateOrder(ctx context.Context, platform, orderID string, valu
 
 func parseOrder(r io.Reader) (*Order, error) {
 	var o struct {
-		AccessEndDate    int64  `json:"accessEndDate"`
-		EndDate          int64  `json:"endDate"`
-		ID               int    `json:"id"`
-		ProductName      string `json:"productName"`
-		ProductPaymentID int    `json:"productPaymentID"`
-		StartDate        int64  `json:"startDate"`
-		UserID           int    `json:"userId"`
+		AccessEndDate    time.Time `json:"accessEndDate"`
+		EndDate          time.Time `json:"endDate"`
+		ID               int       `json:"id"`
+		ProductName      string    `json:"productName"`
+		ProductPaymentID int       `json:"productPaymentID"`
+		StartDate        time.Time `json:"startDate"`
+		UserID           int       `json:"userId"`
 	}
 
 	if err := json.NewDecoder(r).Decode(&o); err != nil {
@@ -218,25 +218,25 @@ func parseOrder(r io.Reader) (*Order, error) {
 	}
 
 	return &Order{
-		AccessEndDate:    epochMsToTime(o.AccessEndDate),
-		EndDate:          epochMsToTime(o.EndDate),
+		AccessEndDate:    o.AccessEndDate,
+		EndDate:          o.EndDate,
 		ID:               strconv.Itoa(o.ID),
 		ProductName:      o.ProductName,
 		ProductPaymentID: strconv.Itoa(o.ProductPaymentID),
-		StartDate:        epochMsToTime(o.StartDate),
+		StartDate:        o.StartDate,
 		UserID:           strconv.Itoa(o.UserID),
 	}, nil
 }
 
 func parseOrders(r io.Reader) ([]*Order, error) {
 	var resp []struct {
-		AccessEndDate    int64  `json:"accessEndDate"`
-		EndDate          int64  `json:"endDate"`
-		ID               int    `json:"id"`
-		ProductName      string `json:"productName"`
-		ProductPaymentID int    `json:"productPaymentID"`
-		StartDate        int64  `json:"startDate"`
-		UserID           int    `json:"userId"`
+		AccessEndDate    time.Time `json:"accessEndDate"`
+		EndDate          time.Time `json:"endDate"`
+		ID               int       `json:"id"`
+		ProductName      string    `json:"productName"`
+		ProductPaymentID int       `json:"productPaymentID"`
+		StartDate        time.Time `json:"startDate"`
+		UserID           int       `json:"userId"`
 	}
 
 	if err := json.NewDecoder(r).Decode(&resp); err != nil {
@@ -247,12 +247,12 @@ func parseOrders(r io.Reader) ([]*Order, error) {
 
 	for n := range resp {
 		orders = append(orders, &Order{
-			AccessEndDate:    epochMsToTime(resp[n].AccessEndDate),
-			EndDate:          epochMsToTime(resp[n].EndDate),
+			AccessEndDate:    resp[n].AccessEndDate,
+			EndDate:          resp[n].EndDate,
 			ID:               strconv.Itoa(resp[n].ID),
 			ProductName:      resp[n].ProductName,
 			ProductPaymentID: strconv.Itoa(resp[n].ProductPaymentID),
-			StartDate:        epochMsToTime(resp[n].StartDate),
+			StartDate:        resp[n].StartDate,
 			UserID:           strconv.Itoa(resp[n].UserID),
 		})
 	}

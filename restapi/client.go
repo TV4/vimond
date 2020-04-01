@@ -99,8 +99,8 @@ func (c *Client) get(ctx context.Context, path string, query url.Values) (*http.
 
 func (c *Client) getJSON(ctx context.Context, path string, query url.Values) (*http.Response, error) {
 	req, err := c.newRequest(ctx, http.MethodGet, path, query, nil, c.setAuthorizationHeader(), func(req *http.Request) {
-		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
-		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=3; charset=utf-8")
 	})
 	if err != nil {
 		return nil, err
@@ -120,8 +120,8 @@ func (c *Client) post(ctx context.Context, path string, query url.Values, body i
 
 func (c *Client) postJSON(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
 	req, err := c.newRequest(ctx, http.MethodPost, path, query, body, c.setAuthorizationHeader(), func(req *http.Request) {
-		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
-		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=3; charset=utf-8")
 	})
 	if err != nil {
 		return nil, err
@@ -141,8 +141,8 @@ func (c *Client) put(ctx context.Context, path string, query url.Values, body io
 
 func (c *Client) putJSON(ctx context.Context, path string, query url.Values, body io.Reader) (*http.Response, error) {
 	req, err := c.newRequest(ctx, http.MethodPut, path, query, body, c.setAuthorizationHeader(), func(req *http.Request) {
-		req.Header.Add("Accept", "application/json; v=2; charset=utf-8")
-		req.Header.Add("Content-Type", "application/json; v=2; charset=utf-8")
+		req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+		req.Header.Add("Content-Type", "application/json; v=3; charset=utf-8")
 	})
 	if err != nil {
 		return nil, err
