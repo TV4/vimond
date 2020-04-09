@@ -3,7 +3,6 @@ package restapi
 import (
 	"context"
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,15 +18,13 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 		return nil, ErrInvalidAssetID
 	}
 
-	resp, err := c.get(ctx, c.assetPath(platform, assetID), url.Values{
-		"expand": {"metadata,category"},
-	})
+	resp, err := c.getJSON(ctx, c.assetPath(platform, assetID), url.Values{"expand": {"metadata,category"}})
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		_, _ = io.CopyN(ioutil.Discard, resp.Body, 64)
-		_ = resp.Body.Close()
+		io.CopyN(ioutil.Discard, resp.Body, 64)
+		resp.Body.Close()
 	}()
 
 	switch resp.StatusCode {
@@ -39,63 +36,86 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 		return nil, ErrUnknown
 	}
 
-	var a Asset
-	if err := xml.NewDecoder(resp.Body).Decode(&a); err != nil {
-		return nil, err
-	}
-
-	return &a, nil
+	return parseAsset(resp.Body)
 }
 
 func (c *Client) assetPath(platform, assetID string) string {
 	return fmt.Sprintf("/api/%s/asset/%s", platform, assetID)
 }
 
+func parseAsset(r io.Reader) (*Asset, error) {
+	type Alias Asset
+
+	var asset struct {
+		AssetTypeID int     `json:"assetTypeId"`
+		CategoryID  int     `json:"categoryId"`
+		ChannelID   int     `json:"channelId"`
+		Duration    float32 `json:"duration"`
+		ID          int     `json:"id"`
+
+		*Alias
+	}
+
+	if err := json.NewDecoder(r).Decode(&asset); err != nil {
+		return nil, err
+	}
+
+	asset.Alias.AssetTypeID = strconv.Itoa(asset.AssetTypeID)
+	asset.Alias.CategoryID = strconv.Itoa(asset.CategoryID)
+	asset.Alias.ChannelID = strconv.Itoa(asset.ChannelID)
+	asset.Alias.Duration = int(asset.Duration)
+	asset.Alias.ID = strconv.Itoa(asset.ID)
+
+	return (*Asset)(asset.Alias), nil
+}
+
 // Asset is a Vimond Rest API asset
 type Asset struct {
-	ID         string `xml:"id,attr" json:"id"`
-	ChannelID  string `xml:"channelId,attr" json:"channel_id"`
-	CategoryID string `xml:"categoryId,attr" json:"category_id"`
+	ID         string `json:"id"`
+	ChannelID  string `json:"channelId"`
+	CategoryID string `json:"categoryId"`
 
-	AssetTypeID string `xml:"assetTypeId" json:"asset_type_id"`
-	Description string `xml:"description" json:"description"`
-	ImageURL    string `xml:"imageUrl" json:"image_url"`
-	Title       string `xml:"title" json:"title"`
+	AssetTypeID string `json:"assetTypeId"`
+	Description string `json:"description"`
+	ImageURL    string `json:"imageUrl"`
+	Title       string `json:"title"`
 
-	ImageVersions ImageVersions `xml:"imageVersions>image"`
+	ImageVersions ImageVersions `json:"imageVersions"`
 
-	Archive        bool `xml:"archive" json:"archive"`
-	Aspect16x9     bool `xml:"aspect16x9" json:"aspect_16x9"`
-	AutoDistribute bool `xml:"autoDistribute" json:"auto_distribute"`
-	AutoEncode     bool `xml:"autoEncode" json:"auto_encode"`
-	AutoPublish    bool `xml:"autoPublish" json:"auto_publish"`
-	CopyLiveStream bool `xml:"copyLiveStream" json:"copy_live_stream"`
-	DRMProtected   bool `xml:"drmProtected" json:"drm_protected"`
-	Deleted        bool `xml:"deleted" json:"deleted"`
-	ItemsPublished bool `xml:"itemsPublished" json:"items_published"`
-	LabeledAsFree  bool `xml:"labeledAsFree" json:"labeled_as_free"`
-	Live           bool `xml:"live" json:"live"`
+	Archive        bool `json:"archive"`
+	Aspect16x9     bool `json:"aspect16x9"`
+	AutoDistribute bool `json:"autoDistribute"`
+	AutoEncode     bool `json:"autoEncode"`
+	AutoPublish    bool `json:"autoPublish"`
+	CopyLiveStream bool `json:"copyLiveStream"`
+	DRMProtected   bool `json:"drmProtected"`
+	Deleted        bool `json:"deleted"`
+	ItemsPublished bool `json:"itemsPublished"`
+	LabeledAsFree  bool `json:"labeledAsFree"`
+	Live           bool `json:"live"`
 
-	Duration int `xml:"duration" json:"duration"`
-	Views    int `xml:"views" json:"views"`
+	Duration int `json:"duration"`
+	Views    int `json:"views"`
 
-	AccurateDuration float64 `xml:"accurateDuration" json:"accurate_duration"`
+	AccurateDuration float64 `json:"accurateDuration"`
 
-	CreateTime        time.Time `xml:"createTime" json:"create_time"`
-	ExpireDate        time.Time `xml:"expireDate" json:"expire_date"`
-	LiveBroadcastTime time.Time `xml:"liveBroadcastTime" json:"live_broadcast_time"`
-	UpdateTime        time.Time `xml:"updateTime" json:"update_time"`
+	CreateTime        time.Time `json:"createTime"`
+	ExpireDate        time.Time `json:"expireDate"`
+	LiveBroadcastTime time.Time `json:"liveBroadcastTime"`
+	UpdateTime        time.Time `json:"updateTime"`
 
-	Metadata AssetMetadata `xml:"metadata" json:"metadata"`
-	Category Category      `xml:"category" json:"category"`
+	Metadata AssetMetadata `json:"metadata"`
+	Category Category      `json:"category"`
 }
 
 // ImageVersions is a slice of ImageVersion
-type ImageVersions []ImageVersion
+type ImageVersions struct {
+	Images []Image `json:"images,omitempty"`
+}
 
 // TypeURL returns the URL for the given image version type
 func (ivs ImageVersions) TypeURL(ivt string) string {
-	for _, iv := range ivs {
+	for _, iv := range ivs.Images {
 		if iv.Type == ivt {
 			return iv.URL
 		}
@@ -104,17 +124,17 @@ func (ivs ImageVersions) TypeURL(ivt string) string {
 	return ""
 }
 
-// ImageVersion is a version of image representing the asset
-type ImageVersion struct {
-	Type string `xml:"type,attr" json:"type"`
-	URL  string `xml:"url" json:"url"`
+// Image is a version of image representing the asset
+type Image struct {
+	Type string `json:"type"`
+	URL  string `json:"url"`
 }
 
 // Category is a category node in the Vimond Rest API category tree
 type Category struct {
-	Parent *Category `xml:"parent" json:"parent"`
-	Title  string    `xml:"title" json:"title"`
-	ID     string    `xml:"id,attr" json:"id"`
+	Parent *Category `json:"parent"`
+	Title  string    `json:"title"`
+	ID     string    `json:"id"`
 }
 
 // In walks the category tree upwards, looking for the given ID
@@ -132,29 +152,29 @@ func (c *Category) In(id string) bool {
 
 // AssetMetadata is metadata for an Asset in the Vimond Rest API
 type AssetMetadata struct {
-	Annotags               string         `xml:"annotags" json:"annotags,omitempty"`
-	AssetLength            int            `xml:"asset-length" json:"asset_length,omitempty"`
-	ContentAPIID           string         `xml:"content-api-id" json:"content_api_id,omitempty"`
-	ContentAPISeasonID     string         `xml:"content-api-season-id" json:"content_api_season_id,omitempty"`
-	ContentAPISeriesID     string         `xml:"content-api-series-id" json:"content_api_series_id,omitempty"`
-	ContentSource          string         `xml:"content-source" json:"content_source,omitempty"`
-	DescriptionShort       LocalizedValue `xml:"description-short" json:"description_short,omitempty"`
-	Episode                json.Number    `xml:"episode" json:"episode,omitempty"`
-	Genre                  string         `xml:"genre" json:"genre,omitempty"`
-	GenreDescription       LocalizedField `xml:"genre-description" json:"genre_description,omitempty"`
-	HideAds                bool           `xml:"hideAds" json:"hide_ads,omitempty"`
-	JuneMediaID            string         `xml:"june-media-id" json:"june_media_id,omitempty"`
-	JuneProgramID          string         `xml:"june-program-id" json:"june_program_id,omitempty"`
-	LouisePressTitle       string         `xml:"louise-press-title" json:"louise_press_title,omitempty"`
-	LouiseProductKey       string         `xml:"louise-product-key" json:"louise_product_key,omitempty"`
-	LouiseProgramType      string         `xml:"louise-program-type" json:"louise_program_type,omitempty"`
-	Season                 json.Number    `xml:"season" json:"season,omitempty"`
-	SeasonID               string         `xml:"season-id" json:"season_id,omitempty"`
-	SeasonSynopsis         LocalizedField `xml:"season-synopsis" json:"season_synopsis,omitempty"`
-	SeriesDescriptionShort LocalizedField `xml:"series-description-short" json:"series_description_short,omitempty"`
-	SeriesID               string         `xml:"series-id" json:"series_id,omitempty"`
-	Title                  LocalizedValue `xml:"title" json:"title,omitempty"`
-	YouTubeTemplate        string         `xml:"youtube-template" json:"youtube_template,omitempty"`
+	Annotags               string         `json:"annotags,omitempty"`
+	AssetLength            int            `json:"assetLength,omitempty"`
+	ContentAPIID           string         `json:"contentApiId,omitempty"`
+	ContentAPISeasonID     string         `json:"contentApiSeasonId,omitempty"`
+	ContentAPISeriesID     string         `json:"contentApiSeriesId,omitempty"`
+	ContentSource          string         `json:"contentSource,omitempty"`
+	DescriptionShort       LocalizedValue `json:"descriptionShort,omitempty"`
+	Episode                json.Number    `json:"episode,omitempty"`
+	Genre                  string         `json:"genre,omitempty"`
+	GenreDescription       LocalizedField `json:"genreDescription,omitempty"`
+	HideAds                bool           `json:"hideAds,omitempty"`
+	JuneMediaID            string         `json:"juneMediaId,omitempty"`
+	JuneProgramID          string         `json:"juneProgramId,omitempty"`
+	LouisePressTitle       string         `json:"louisePressTitle,omitempty"`
+	LouiseProductKey       string         `json:"louiseProductKey,omitempty"`
+	LouiseProgramType      string         `json:"louiseProgramType,omitempty"`
+	Season                 json.Number    `json:"season,omitempty"`
+	SeasonID               string         `json:"seasonId,omitempty"`
+	SeasonSynopsis         LocalizedField `json:"seasonSynopsis,omitempty"`
+	SeriesDescriptionShort LocalizedField `json:"seriesDescriptionShort,omitempty"`
+	SeriesID               string         `json:"seriesId,omitempty"`
+	Title                  LocalizedValue `json:"title,omitempty"`
+	YouTubeTemplate        string         `json:"youtubeTemplate,omitempty"`
 }
 
 // LocalizedField is field with localized values
@@ -177,6 +197,6 @@ func (lf LocalizedField) Value(lang string) string {
 
 // LocalizedValue is a representation of a parsed multi-language value
 type LocalizedValue struct {
-	Lang  string `xml:"lang,attr" json:"lang"`
-	Value string `xml:",chardata" json:"value"`
+	Lang  string `json:"lang"`
+	Value string `json:"value"`
 }

@@ -2,8 +2,9 @@ package restapi
 
 import (
 	"context"
-	"encoding/xml"
+	"encoding/json"
 	"net/http"
+	"strconv"
 	"testing"
 )
 
@@ -17,35 +18,75 @@ func TestAsset(t *testing.T) {
 	})
 
 	t.Run("valid_assets", func(t *testing.T) {
-		for _, ta := range []testAsset{
-			{ID: "3846532", CategoryID: "3060070106601", Title: "Pengarna i piracy"},
-			{ID: "3800612", CategoryID: "3051302", Title: "I en annan del av Köping: ", PressTitle: "I en annan del av Köping"},
+		for _, tc := range []struct {
+			in  vimondAsset
+			out Asset
+		}{
+			{
+				in: vimondAsset{
+					AssetTypeID: 10001,
+					CategoryID:  10002,
+					ChannelID:   10003,
+					Duration:    10004.5,
+					ID:          10006,
+					Title:       "title foo",
+				},
+				out: Asset{
+					AssetTypeID: "10001",
+					CategoryID:  "10002",
+					ChannelID:   "10003",
+					Duration:    10004,
+					ID:          "10006",
+					Title:       "title foo",
+				},
+			},
+			{
+				in: vimondAsset{
+					AssetTypeID: 20001,
+					CategoryID:  20002,
+					ChannelID:   20003,
+					Duration:    20004.5,
+					ID:          20006,
+					Metadata:    vimondAssetMetadata{LouisePressTitle: "louise press title bar"},
+					Title:       "asset title bar",
+				},
+				out: Asset{
+					AssetTypeID: "20001",
+					CategoryID:  "20002",
+					ChannelID:   "20003",
+					Duration:    20004,
+					ID:          "20006",
+					Title:       "asset title bar",
+					Metadata:    AssetMetadata{LouisePressTitle: "louise press title bar"},
+				},
+			},
 		} {
 			ts, c := testServerAndClient(func(w http.ResponseWriter, r *http.Request) {
-				w.Write(testAssetXML(ta))
+				b, _ := json.Marshal(tc.in)
+				w.Write(b)
 			})
 			defer ts.Close()
 
-			t.Run(ta.ID, func(t *testing.T) {
-				a, err := c.Asset(context.Background(), "tv4", ta.ID)
+			t.Run(strconv.Itoa(tc.in.ID), func(t *testing.T) {
+				asset, err := c.Asset(context.Background(), "tv4", strconv.Itoa(tc.in.ID))
 				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
+					t.Errorf("unexpected error: %v", err)
 				}
 
-				if got, want := a.ID, ta.ID; got != want {
-					t.Fatalf("a.ID = %q, want %q", got, want)
+				if got, want := asset.ID, tc.out.ID; got != want {
+					t.Errorf("asset.ID = %q, want %q", got, want)
 				}
 
-				if got, want := a.CategoryID, ta.CategoryID; got != want {
-					t.Fatalf("a.CategoryID = %q, want %q", got, want)
+				if got, want := asset.CategoryID, tc.out.CategoryID; got != want {
+					t.Errorf("asset.CategoryID = %q, want %q", got, want)
 				}
 
-				if got, want := a.Title, ta.Title; got != want {
-					t.Fatalf("a.Title = %q, want %q", got, want)
+				if got, want := asset.Title, tc.out.Title; got != want {
+					t.Errorf("asset.Title = %q, want %q", got, want)
 				}
 
-				if got, want := a.Metadata.LouisePressTitle, ta.PressTitle; got != want {
-					t.Fatalf("a.Metadata.LouisePressTitle = %q, want %q", got, want)
+				if got, want := asset.Metadata.LouisePressTitle, tc.out.Metadata.LouisePressTitle; got != want {
+					t.Errorf("a.Metadata = %q, want %q", got, want)
 				}
 			})
 		}
@@ -61,8 +102,8 @@ func TestImageVersions(t *testing.T) {
 		}{
 			{ImageVersions{}, "", ""},
 			{ImageVersions{}, "original", ""},
-			{ImageVersions{{"original", "foo"}}, "original", "foo"},
-			{ImageVersions{{"original", "foo"}, {"secondary", "bar"}}, "secondary", "bar"},
+			{ImageVersions{Images: []Image{{"original", "foo"}}}, "original", "foo"},
+			{ImageVersions{Images: []Image{{"original", "foo"}, {"secondary", "bar"}}}, "secondary", "bar"},
 		} {
 			if got := tt.ivs.TypeURL(tt.ivt); got != tt.want {
 				t.Fatalf("tt.ivs.TypeURL(%q) = %q, want %q", tt.ivt, got, tt.want)
@@ -112,19 +153,16 @@ func TestLocalizedField(t *testing.T) {
 	}
 }
 
-type testAsset struct {
-	XMLName    xml.Name `xml:"asset"`
-	ID         string   `xml:"id,attr"`
-	CategoryID string   `xml:"categoryId,attr"`
-	Title      string   `xml:"title"`
-	PressTitle string   `xml:"metadata>louise-press-title,omitempty"`
+type vimondAsset struct {
+	AssetTypeID int                 `json:"assetTypeId"`
+	CategoryID  int                 `json:"categoryId,attr"`
+	ChannelID   int                 `json:"channelId"`
+	Duration    float32             `json:"duration"`
+	ID          int                 `json:"id,attr"`
+	Metadata    vimondAssetMetadata `json:"metadata"`
+	Title       string              `json:"title"`
 }
 
-func testAssetXML(ta testAsset) []byte {
-	output, err := xml.Marshal(ta)
-	if err != nil {
-		return nil
-	}
-
-	return output
+type vimondAssetMetadata struct {
+	LouisePressTitle string `json:"louisePressTitle,omitempty"`
 }
