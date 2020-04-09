@@ -28,7 +28,7 @@ type Order struct {
 func (c *Client) Order(ctx context.Context, platform, orderID string) (*Order, error) {
 	path := fmt.Sprintf("/api/%s/order/%s", platform, orderID)
 
-	resp, err := c.getJSON(ctx, path, url.Values{})
+	resp, err := c.get(ctx, path, url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *Client) Order(ctx context.Context, platform, orderID string) (*Order, e
 func (c *Client) CurrentOrders(ctx context.Context, platform, userID string) ([]*Order, error) {
 	path := fmt.Sprintf("/api/%s/user/%s/orders/current", platform, userID)
 
-	resp, err := c.getJSON(ctx, path, url.Values{})
+	resp, err := c.get(ctx, path, url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (c *Client) CreateOrder(ctx context.Context, platform, userID, productPayme
 		return nil, err
 	}
 
-	resp, err := c.postJSON(ctx, path, url.Values{}, bytes.NewReader(body))
+	resp, err := c.post(ctx, path, url.Values{}, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (c *Client) updateOrder(ctx context.Context, platform, orderID string, valu
 	getRawOrder := func(ctx context.Context, platform, orderID string) (map[string]interface{}, error) {
 		path := fmt.Sprintf("/api/%s/order/%s", platform, orderID)
 
-		resp, err := c.getJSON(ctx, path, url.Values{})
+		resp, err := c.get(ctx, path, url.Values{})
 		if err != nil {
 			return nil, err
 		}
@@ -181,7 +181,7 @@ func (c *Client) updateOrder(ctx context.Context, platform, orderID string, valu
 
 	path := fmt.Sprintf("/api/%s/order/%s", platform, orderID)
 
-	resp, err := c.putJSON(ctx, path, url.Values{}, bytes.NewReader(body))
+	resp, err := c.put(ctx, path, url.Values{}, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}

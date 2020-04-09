@@ -12,7 +12,7 @@ import (
 
 // Videofiles returns a list of videofiles for the given assetID
 func (c *Client) Videofiles(ctx context.Context, assetID string) (*VideofilesResponse, error) {
-	resp, err := c.getJSON(ctx, c.videofilesPath(assetID), url.Values{})
+	resp, err := c.get(ctx, c.videofilesPath(assetID), url.Values{})
 	if err != nil {
 		return nil, err
 	}

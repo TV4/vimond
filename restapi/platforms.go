@@ -19,7 +19,7 @@ type Platform struct {
 func (c *Client) Platforms(ctx context.Context) ([]Platform, error) {
 	path := "/api/admin/platforms"
 
-	resp, err := c.getJSON(ctx, path, url.Values{})
+	resp, err := c.get(ctx, path, url.Values{})
 	if err != nil {
 		return nil, err
 	}

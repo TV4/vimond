@@ -18,7 +18,7 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 		return nil, ErrInvalidAssetID
 	}
 
-	resp, err := c.getJSON(ctx, c.assetPath(platform, assetID), url.Values{"expand": {"metadata,category"}})
+	resp, err := c.get(ctx, c.assetPath(platform, assetID), url.Values{"expand": {"metadata,category"}})
 	if err != nil {
 		return nil, err
 	}
