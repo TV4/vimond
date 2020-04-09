@@ -39,8 +39,17 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 	return parseAsset(resp.Body)
 }
 
-// AssetRaw returns the raw response for an asset from the Vimond Rest API
-func (c *Client) AssetRaw(ctx context.Context, platform, assetID string) ([]byte, error) {
+// AssetRaw returns the raw response for an asset from the Vimond Rest API.
+// possible values for headerAccept:
+// application/json; v=3; charset=utf-8
+// application/json; v=2; charset=utf-8
+// application/json; charset=utf-8
+// application/xml; charset=utf-8
+func (c *Client) AssetRaw(ctx context.Context, platform, assetID, headerAccept string) ([]byte, error) {
+	if headerAccept != "" {
+		c.headerAccept = headerAccept
+	}
+
 	resp, err := c.get(ctx, c.assetPath(platform, assetID), url.Values{"expand": {"metadata,category"}})
 	if err != nil {
 		return nil, err
