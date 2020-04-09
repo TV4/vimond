@@ -39,6 +39,26 @@ func (c *Client) Asset(ctx context.Context, platform, assetID string) (*Asset, e
 	return parseAsset(resp.Body)
 }
 
+// AssetRaw returns the raw response for an asset from the Vimond Rest API
+func (c *Client) AssetRaw(ctx context.Context, platform, assetID string) ([]byte, error) {
+	resp, err := c.get(ctx, c.assetPath(platform, assetID), url.Values{"expand": {"metadata,category"}})
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Vimond replies with status %d", resp.StatusCode)
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading response body: %v", err)
+	}
+
+	return b, nil
+}
+
 func (c *Client) assetPath(platform, assetID string) string {
 	return fmt.Sprintf("/api/%s/asset/%s", platform, assetID)
 }

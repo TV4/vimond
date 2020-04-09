@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -89,6 +91,59 @@ func TestAsset(t *testing.T) {
 					t.Errorf("a.Metadata = %q, want %q", got, want)
 				}
 			})
+		}
+	})
+}
+
+func TestAssetRaw(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("foo content"))
+		}))
+		defer ts.Close()
+
+		c := NewClient(BaseURL(ts.URL))
+
+		b, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+		if err != nil {
+			t.Fatal("unexpected error:", err)
+		}
+
+		if got, want := string(b), "foo content"; got != want {
+			t.Errorf("got response %q, want %q", got, want)
+		}
+	})
+
+	t.Run("ErrorMakeRequest", func(t *testing.T) {
+		c := NewClient(BaseURL("foo://"))
+
+		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+
+		if err == nil {
+			t.Fatal("error is nil")
+		}
+
+		if got, want := err.Error(), "unsupported protocol scheme"; !strings.Contains(got, want) {
+			t.Errorf("got error: '%s', want substring: '%s'", got, want)
+		}
+	})
+
+	t.Run("ErrorStatusCode", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusTeapot)
+		}))
+		defer ts.Close()
+
+		c := NewClient(BaseURL(ts.URL))
+
+		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+
+		if err == nil {
+			t.Fatal("error is nil")
+		}
+
+		if got, want := err.Error(), strconv.Itoa(http.StatusTeapot); !strings.Contains(got, want) {
+			t.Errorf("got error: '%s', want substring: '%s'", got, want)
 		}
 	})
 }
