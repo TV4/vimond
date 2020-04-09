@@ -22,19 +22,21 @@ var (
 )
 
 const (
-	defaultScheme    = "https"
-	defaultHost      = "restapi-vimond-prod.b17g.net"
-	defaultUserAgent = "vimond/restapi/client.go"
-	defaultTimeout   = 20 * time.Second
+	defaultScheme       = "https"
+	defaultHost         = "restapi-vimond-prod.b17g.net"
+	defaultUserAgent    = "vimond/restapi/client.go"
+	defaultTimeout      = 20 * time.Second
+	defaultHeaderAccept = "application/json; v=3; charset=utf-8"
 )
 
 // Client for the Vimond REST API
 type Client struct {
-	httpClient *http.Client
-	baseURL    *url.URL
-	apiKey     string
-	secret     string
-	userAgent  string
+	httpClient   *http.Client
+	baseURL      *url.URL
+	apiKey       string
+	secret       string
+	userAgent    string
+	headerAccept string
 }
 
 // NewClient creates a new Vimond REST API Client
@@ -47,7 +49,8 @@ func NewClient(options ...func(*Client)) *Client {
 			Scheme: defaultScheme,
 			Host:   defaultHost,
 		},
-		userAgent: defaultUserAgent,
+		userAgent:    defaultUserAgent,
+		headerAccept: defaultHeaderAccept,
 	}
 
 	for _, f := range options {
@@ -138,7 +141,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, query url.
 		option(req)
 	}
 
-	req.Header.Add("Accept", "application/json; v=3; charset=utf-8")
+	req.Header.Add("Accept", c.headerAccept)
 	req.Header.Add("Content-Type", "application/json; v=3; charset=utf-8")
 	req.Header.Add("User-Agent", c.userAgent)
 
