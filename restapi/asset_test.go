@@ -104,7 +104,7 @@ func TestAssetRaw(t *testing.T) {
 
 		c := NewClient(BaseURL(ts.URL))
 
-		b, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+		b, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset", defaultHeaderAccept)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
 		}
@@ -117,7 +117,7 @@ func TestAssetRaw(t *testing.T) {
 	t.Run("ErrorMakeRequest", func(t *testing.T) {
 		c := NewClient(BaseURL("foo://"))
 
-		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset", defaultHeaderAccept)
 
 		if err == nil {
 			t.Fatal("error is nil")
@@ -136,7 +136,7 @@ func TestAssetRaw(t *testing.T) {
 
 		c := NewClient(BaseURL(ts.URL))
 
-		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset")
+		_, err := c.AssetRaw(context.Background(), "foo-platform", "foo-asset", defaultHeaderAccept)
 
 		if err == nil {
 			t.Fatal("error is nil")
