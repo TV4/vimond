@@ -9,7 +9,7 @@
 
 ## Installation
 ```
-go get -u github.com/TV4/vimond/cmd/vimond
+go install github.com/TV4/vimond/cmd/vimond@latest
 ```
 
 ## License
