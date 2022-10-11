@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestAsset(t *testing.T) {
@@ -49,8 +51,14 @@ func TestAsset(t *testing.T) {
 					ChannelID:   20003,
 					Duration:    20004.5,
 					ID:          20006,
-					Metadata:    vimondAssetMetadata{LouisePressTitle: "louise press title bar"},
-					Title:       "asset title bar",
+					Metadata: vimondAssetMetadata{
+						Entries: vimondAssetMetadataEntries{
+							LouisePressTitle: []LocalizedValue{
+								{Value: "louise press title bar", Lang: "en_US"},
+							},
+						},
+					},
+					Title: "asset title bar",
 				},
 				out: Asset{
 					AssetTypeID: "20001",
@@ -59,7 +67,13 @@ func TestAsset(t *testing.T) {
 					Duration:    20004,
 					ID:          "20006",
 					Title:       "asset title bar",
-					Metadata:    AssetMetadata{LouisePressTitle: "louise press title bar"},
+					Metadata: AssetMetadata{
+						Entries: MetadataEntries{
+							LouisePressTitle: []LocalizedValue{
+								{Value: "louise press title bar", Lang: "en_US"},
+							},
+						},
+					},
 				},
 			},
 		} {
@@ -87,7 +101,7 @@ func TestAsset(t *testing.T) {
 					t.Errorf("asset.Title = %q, want %q", got, want)
 				}
 
-				if got, want := asset.Metadata.LouisePressTitle, tc.out.Metadata.LouisePressTitle; got != want {
+				if got, want := asset.Metadata, tc.out.Metadata; !cmp.Equal(got, want) {
 					t.Errorf("a.Metadata = %q, want %q", got, want)
 				}
 			})
@@ -219,5 +233,9 @@ type vimondAsset struct {
 }
 
 type vimondAssetMetadata struct {
-	LouisePressTitle string `json:"louisePressTitle,omitempty"`
+	Entries vimondAssetMetadataEntries `json:"entries"`
+}
+
+type vimondAssetMetadataEntries struct {
+	LouisePressTitle LocalizedField `json:"louise-press-title,omitempty"`
 }
