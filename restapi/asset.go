@@ -187,28 +187,27 @@ type AssetMetadata struct {
 // MetadataEntries is metadata for an Asset in the Vimond Rest API
 type MetadataEntries struct {
 	Annotags               LocalizedField `json:"annotags,omitempty"`
-	AssetLength            LocalizedField `json:"assetLength,omitempty"`
-	ContentAPIID           LocalizedField `json:"contentApiId,omitempty"`
-	ContentAPISeasonID     LocalizedField `json:"contentApiSeasonId,omitempty"`
-	ContentAPISeriesID     LocalizedField `json:"contentApiSeriesId,omitempty"`
-	ContentSource          LocalizedField `json:"contentSource,omitempty"`
-	DescriptionShort       LocalizedField `json:"descriptionShort,omitempty"`
+	AssetLength            LocalizedField `json:"asset-length,omitempty"`
+	ContentAPIID           LocalizedField `json:"content-api-id,omitempty"`
+	ContentAPISeasonID     LocalizedField `json:"content-api-season-id,omitempty"`
+	ContentAPISeriesID     LocalizedField `json:"content-api-series-id,omitempty"`
+	ContentSource          LocalizedField `json:"content-source,omitempty"`
+	DescriptionShort       LocalizedField `json:"description-short,omitempty"`
 	Episode                LocalizedField `json:"episode,omitempty"`
 	Genre                  LocalizedField `json:"genre,omitempty"`
-	GenreDescription       LocalizedField `json:"genreDescription,omitempty"`
+	GenreDescription       LocalizedField `json:"genre-description,omitempty"`
 	HideAds                LocalizedField `json:"hideAds,omitempty"`
-	JuneMediaID            LocalizedField `json:"juneMediaId,omitempty"`
-	JuneProgramID          LocalizedField `json:"juneProgramId,omitempty"`
-	LouisePressTitle       LocalizedField `json:"louisePressTitle,omitempty"`
-	LouiseProductKey       LocalizedField `json:"louiseProductKey,omitempty"`
-	LouiseProgramType      LocalizedField `json:"louiseProgramType,omitempty"`
+	JuneMediaID            LocalizedField `json:"june-media-id,omitempty"`
+	JuneProgramID          LocalizedField `json:"june-program-id,omitempty"`
+	LouisePressTitle       LocalizedField `json:"louise-press-title,omitempty"`
+	LouiseProductKey       LocalizedField `json:"louise-product-key,omitempty"`
 	Season                 LocalizedField `json:"season,omitempty"`
-	SeasonID               LocalizedField `json:"seasonId,omitempty"`
-	SeasonSynopsis         LocalizedField `json:"seasonSynopsis,omitempty"`
-	SeriesDescriptionShort LocalizedField `json:"seriesDescriptionShort,omitempty"`
-	SeriesID               LocalizedField `json:"seriesId,omitempty"`
+	SeasonID               LocalizedField `json:"season-id,omitempty"`
+	SeasonSynopsis         LocalizedField `json:"season-synopsis,omitempty"`
+	SeriesDescriptionShort LocalizedField `json:"series-description-short,omitempty"`
+	SeriesID               LocalizedField `json:"series-id,omitempty"`
 	Title                  LocalizedField `json:"title,omitempty"`
-	YouTubeTemplate        LocalizedField `json:"youtubeTemplate,omitempty"`
+	YouTubeTemplate        LocalizedField `json:"youtube-template,omitempty"`
 }
 
 // LocalizedField is field with localized values

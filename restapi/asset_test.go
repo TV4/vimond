@@ -237,5 +237,5 @@ type vimondAssetMetadata struct {
 }
 
 type vimondAssetMetadataEntries struct {
-	LouisePressTitle LocalizedField `json:"louisePressTitle,omitempty"`
+	LouisePressTitle LocalizedField `json:"louise-press-title,omitempty"`
 }
