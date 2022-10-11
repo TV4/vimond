@@ -179,31 +179,36 @@ func (c *Category) In(id string) bool {
 	return false
 }
 
-// AssetMetadata is metadata for an Asset in the Vimond Rest API
+// AssetMetadata represents Vimond asset metadata.
 type AssetMetadata struct {
-	Annotags               string         `json:"annotags,omitempty"`
-	AssetLength            int            `json:"assetLength,omitempty"`
-	ContentAPIID           string         `json:"contentApiId,omitempty"`
-	ContentAPISeasonID     string         `json:"contentApiSeasonId,omitempty"`
-	ContentAPISeriesID     string         `json:"contentApiSeriesId,omitempty"`
-	ContentSource          string         `json:"contentSource,omitempty"`
-	DescriptionShort       LocalizedValue `json:"descriptionShort,omitempty"`
-	Episode                json.Number    `json:"episode,omitempty"`
-	Genre                  string         `json:"genre,omitempty"`
+	Entries MetadataEntries `json:"entries"`
+}
+
+// MetadataEntries is metadata for an Asset in the Vimond Rest API
+type MetadataEntries struct {
+	Annotags               LocalizedField `json:"annotags,omitempty"`
+	AssetLength            LocalizedField `json:"assetLength,omitempty"`
+	ContentAPIID           LocalizedField `json:"contentApiId,omitempty"`
+	ContentAPISeasonID     LocalizedField `json:"contentApiSeasonId,omitempty"`
+	ContentAPISeriesID     LocalizedField `json:"contentApiSeriesId,omitempty"`
+	ContentSource          LocalizedField `json:"contentSource,omitempty"`
+	DescriptionShort       LocalizedField `json:"descriptionShort,omitempty"`
+	Episode                LocalizedField `json:"episode,omitempty"`
+	Genre                  LocalizedField `json:"genre,omitempty"`
 	GenreDescription       LocalizedField `json:"genreDescription,omitempty"`
-	HideAds                bool           `json:"hideAds,omitempty"`
-	JuneMediaID            string         `json:"juneMediaId,omitempty"`
-	JuneProgramID          string         `json:"juneProgramId,omitempty"`
-	LouisePressTitle       string         `json:"louisePressTitle,omitempty"`
-	LouiseProductKey       string         `json:"louiseProductKey,omitempty"`
-	LouiseProgramType      string         `json:"louiseProgramType,omitempty"`
-	Season                 json.Number    `json:"season,omitempty"`
-	SeasonID               string         `json:"seasonId,omitempty"`
+	HideAds                LocalizedField `json:"hideAds,omitempty"`
+	JuneMediaID            LocalizedField `json:"juneMediaId,omitempty"`
+	JuneProgramID          LocalizedField `json:"juneProgramId,omitempty"`
+	LouisePressTitle       LocalizedField `json:"louisePressTitle,omitempty"`
+	LouiseProductKey       LocalizedField `json:"louiseProductKey,omitempty"`
+	LouiseProgramType      LocalizedField `json:"louiseProgramType,omitempty"`
+	Season                 LocalizedField `json:"season,omitempty"`
+	SeasonID               LocalizedField `json:"seasonId,omitempty"`
 	SeasonSynopsis         LocalizedField `json:"seasonSynopsis,omitempty"`
 	SeriesDescriptionShort LocalizedField `json:"seriesDescriptionShort,omitempty"`
-	SeriesID               string         `json:"seriesId,omitempty"`
-	Title                  LocalizedValue `json:"title,omitempty"`
-	YouTubeTemplate        string         `json:"youtubeTemplate,omitempty"`
+	SeriesID               LocalizedField `json:"seriesId,omitempty"`
+	Title                  LocalizedField `json:"title,omitempty"`
+	YouTubeTemplate        LocalizedField `json:"youtubeTemplate,omitempty"`
 }
 
 // LocalizedField is field with localized values
@@ -224,7 +229,7 @@ func (lf LocalizedField) Value(lang string) string {
 	return def.Value
 }
 
-// LocalizedValue is a representation of a parsed multi-language value
+// LocalizedValue is a representation of a multi-language value
 type LocalizedValue struct {
 	Lang  string `json:"lang"`
 	Value string `json:"value"`
