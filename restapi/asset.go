@@ -197,6 +197,7 @@ type MetadataEntries struct {
 	Genre                  LocalizedField `json:"genre,omitempty"`
 	GenreDescription       LocalizedField `json:"genre-description,omitempty"`
 	HideAds                LocalizedField `json:"hideAds,omitempty"`
+	ImagePack              LocalizedField `json:"image-pack,omitempty"`
 	JuneMediaID            LocalizedField `json:"june-media-id,omitempty"`
 	JuneProgramID          LocalizedField `json:"june-program-id,omitempty"`
 	LouisePressTitle       LocalizedField `json:"louise-press-title,omitempty"`
