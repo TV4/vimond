@@ -48,7 +48,7 @@ func TestParsePlatforms(t *testing.T) {
 			wantPlatform := wantPlatforms[n]
 
 			if got, want := platform.ID, wantPlatform.ID; got != want {
-				t.Errorf("platform[%d].ID = %q, want %q", n, got, want)
+				t.Errorf("platform[%d].ID = %d, want %d", n, got, want)
 			}
 
 			if got, want := platform.Name, wantPlatform.Name; got != want {

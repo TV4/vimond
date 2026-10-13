@@ -1,5 +1,5 @@
 module github.com/TV4/vimond
 
-go 1.25
+go 1.27.2
 
 require github.com/google/go-cmp v0.7.0
